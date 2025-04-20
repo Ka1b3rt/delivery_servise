@@ -1,0 +1,35 @@
+[tool.poetry]
+name = "delivery-service"
+version = "0.1.0"
+description = "Delivery service API"
+authors = ["Your Name <your.email@example.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+fastapi = "^0.109.2"
+uvicorn = {extras = ["standard"], version = "^0.27.1"}
+pydantic = {extras = ["email"], version = "^2.6.1"}
+sqlalchemy = {extras = ["asyncio"], version = "^2.0.27"}
+alembic = "^1.13.1"
+asyncpg = "^0.29.0"
+aiohttp = "^3.9.3"
+
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.2.1"
+pre-commit = "^3.6.0"
+pytest = "^8.0.0"
+pytest-asyncio = "^0.23.5"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+select = ["E", "F", "B", "I", "N", "UP", "PL", "RUF"]
+ignore = []
+
+[tool.ruff.isort]
+known-first-party = ["delivery_service"] 
