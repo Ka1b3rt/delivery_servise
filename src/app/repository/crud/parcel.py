@@ -1,19 +1,15 @@
-
-
-from sqlalchemy import select, update
-
 from app.core.database import sync_db
 from app.models.parcel import Parcel, ParcelType
 from app.models.user import User
 from app.repository.crud.base import BaseCRUDRepository
 from app.schemas.schemas import AddParcel, AddParcelResp, GetParcel, GetParcelTypes
+from sqlalchemy import select, update
 
 
 class ParcelCRUDRepository(BaseCRUDRepository):
-
     async def create_parcel(self, parcel: AddParcel, user: User) -> AddParcelResp:
         parcel_obj_dict = parcel.model_dump()
-        parcel_obj_dict['user_id'] = user.session_id
+        parcel_obj_dict["user_id"] = user.session_id
         new_parcel = Parcel(**parcel_obj_dict)
         self.async_session.add(new_parcel)
         await self.async_session.commit()

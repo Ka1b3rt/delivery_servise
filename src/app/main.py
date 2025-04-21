@@ -1,7 +1,6 @@
-from fastapi import FastAPI
-
 from app.api.middleware import UserSessionMiddleware
 from app.api.routers import debug, parcels
+from fastapi import FastAPI
 
 
 def get_app():

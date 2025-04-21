@@ -1,5 +1,6 @@
-import httpx
 from typing import Optional
+
+import httpx
 
 
 class ExchangeRate:
@@ -22,12 +23,15 @@ class ExchangeRate:
     @staticmethod
     async def get_USD_to_RUB() -> float:
         import time
+
         current_time = time.time()
 
         # Если есть кэшированное значение и оно не устарело, возвращаем его
-        if (ExchangeRate._cached_rate is not None and 
-            ExchangeRate._last_update is not None and 
-            current_time - ExchangeRate._last_update < ExchangeRate.CACHE_TTL):
+        if (
+            ExchangeRate._cached_rate is not None
+            and ExchangeRate._last_update is not None
+            and current_time - ExchangeRate._last_update < ExchangeRate.CACHE_TTL
+        ):
             return ExchangeRate._cached_rate
 
         # Получаем новые данные
@@ -36,9 +40,11 @@ class ExchangeRate:
             # Если не удалось получить новые данные, возвращаем кэшированное значение
             if ExchangeRate._cached_rate is not None:
                 return ExchangeRate._cached_rate
-            raise ValueError("Failed to fetch exchange rate and no cached value available")
+            raise ValueError(
+                "Failed to fetch exchange rate and no cached value available"
+            )
 
         # Обновляем кэш
-        ExchangeRate._cached_rate = data['Valute']['USD']['Value']
+        ExchangeRate._cached_rate = data["Valute"]["USD"]["Value"]
         ExchangeRate._last_update = current_time
         return ExchangeRate._cached_rate

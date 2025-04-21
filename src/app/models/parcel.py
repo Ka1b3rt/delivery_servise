@@ -22,6 +22,7 @@ class TypeType(str, enum.Enum):
     ELECTRONICS = "electronics"
     OTHER = "other"
 
+
 class Parcel(SQLAlchemyBaseModel):
     __tablename__ = "parcel"
     __table_args__ = (
@@ -40,7 +41,8 @@ class Parcel(SQLAlchemyBaseModel):
         nullable=False,
     )
     delivery_price: Mapped[float] = mapped_column(
-        Numeric(precision=8, scale=2), nullable=True)
+        Numeric(precision=8, scale=2), nullable=True
+    )
 
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
@@ -57,15 +59,15 @@ class Parcel(SQLAlchemyBaseModel):
 
     user: Mapped["User"] = relationship(back_populates="parcels")
 
+
 class ParcelType(SQLAlchemyBaseModel):
     __tablename__ = "parcel_type"
 
     id: Mapped[int] = mapped_column(primary_key=True)
     type: Mapped["TypeType"] = mapped_column(
-        Enum(TypeType), unique=True, nullable=False)
+        Enum(TypeType), unique=True, nullable=False
+    )
 
     parcels: Mapped[list["Parcel"]] = relationship(
-        back_populates="type",
-        cascade="all, delete",
-        passive_deletes=True
+        back_populates="type", cascade="all, delete", passive_deletes=True
     )

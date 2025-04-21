@@ -30,7 +30,5 @@ class User(SQLAlchemyBaseModel):
     )
 
     parcels: Mapped[list["Parcel"]] = relationship(
-        back_populates="user",
-        cascade="all, delete",
-        passive_deletes=True
+        back_populates="user", cascade="all, delete", passive_deletes=True
     )

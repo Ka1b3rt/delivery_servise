@@ -4,8 +4,6 @@ from datetime import datetime
 
 from aio_pika import Message
 from aio_pika.abc import AbstractRobustConnection
-
-from app.core.config import settings
 from app.core.rabbitmq import get_rabbitmq_connection
 from app.external.exchange_rate import ExchangeRate
 from app.repository.crud.parcel import ParcelCRUDRepository
@@ -64,4 +62,4 @@ async def main():
 
 
 if __name__ == "__main__":
-    asyncio.run(main()) 
+    asyncio.run(main())
