@@ -102,11 +102,16 @@ services:
     restart: on-failure
     env_file:
       - .env
+    volumes:
+      - ./src:/app/src
+      - ./alembic:/app/alembic
+      - ./alembic.ini:/app/alembic.ini
+      - ./.env:/app/.env
     depends_on:
       db:
         condition: service_healthy
     command: >
-      bash -c "cd /app && uv run alembic upgrade head && cd src && uv run initial_seed.py"
+      bash -c "cd /app && PYTHONPATH=/app/src uv run alembic upgrade head && cd src && uv run initial_seed.py"
 
 volumes:
   pg_data:
