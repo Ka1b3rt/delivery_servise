@@ -22,7 +22,7 @@ setup_logging(level=logging.INFO)
 router = APIRouter()
 
 
-@router.post("/parcel", response_model=AddParcelResp)
+@router.post("/parcel", response_model=AddParcelResp, summary="Добавление посылки")
 async def add_parcel(
     parcel: AddParcel,
     parcel_repo: ParcelCRUDRepository = Depends(get_repository(ParcelCRUDRepository)),
@@ -37,7 +37,7 @@ async def add_parcel(
         raise HTTPException(status.HTTP_400_BAD_REQUEST, detail=type(e).__name__) from e
 
 
-@router.get("/parcel")
+@router.get("/parcel", summary="Получение всех посылок")
 async def get_all_parcels(
     parcel_repo: ParcelCRUDRepository = Depends(get_repository(ParcelCRUDRepository)),
     user: User = Depends(get_current_user),
@@ -57,7 +57,7 @@ async def get_all_parcels(
     return parcels
 
 
-@router.get("/parcel_types")
+@router.get("/parcel_types", summary="Получение всех типов посылок")
 async def get_parcel_types(
     parcel_repo: ParcelCRUDRepository = Depends(get_repository(ParcelCRUDRepository)),
 ):

@@ -4,6 +4,8 @@ from datetime import datetime
 
 from aio_pika import Message
 from aio_pika.abc import AbstractRobustConnection
+
+# from app.core.config import settings
 from app.core.rabbitmq import get_rabbitmq_connection
 from app.external.exchange_rate import ExchangeRate
 from app.repository.crud.parcel import ParcelCRUDRepository
@@ -11,7 +13,7 @@ from app.repository.crud.parcel import ParcelCRUDRepository
 
 async def process_message(message: Message):
     try:
-        rate: float = await ExchangeRate.get_USD_to_RUB()
+        rate: float = ExchangeRate.get_USD_to_RUB()
         await ParcelCRUDRepository.set_delivery_price(rate)
         print(f"Exchange rate = {rate}")
         await message.ack()
@@ -62,4 +64,4 @@ async def main():
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    asyncio.run(main()) 

@@ -6,12 +6,12 @@ from sqlalchemy.orm import sessionmaker
 
 class AsyncDatabase:
     def __init__(self):
-        self.postgres_uri: str = settings.DATABASE_ASYNC_URL
+        self.postgres_uri: str = settings.postgres.DATABASE_ASYNC_URL
         self.engine: AsyncEngine = create_async_engine(
             url=self.postgres_uri,
-            echo=settings.PG_ECHO,
-            pool_size=settings.PG_POOL_SIZE,
-            max_overflow=settings.PG_MAX_OVERFLOW,
+            echo=settings.postgres.PG_ECHO,
+            pool_size=settings.postgres.PG_POOL_SIZE,
+            max_overflow=settings.postgres.PG_MAX_OVERFLOW,
         )
         self.session_factory = async_sessionmaker(
             bind=self.engine, expire_on_commit=False
@@ -20,12 +20,12 @@ class AsyncDatabase:
 
 class SyncDatabase:
     def __init__(self):
-        self.postgres_uri: str = settings.DATABASE_SYNC_URL
+        self.postgres_uri: str = settings.postgres.DATABASE_SYNC_URL
         self.engine = create_engine(
             url=self.postgres_uri,
-            echo=settings.PG_ECHO,
-            pool_size=settings.PG_POOL_SIZE,
-            max_overflow=settings.PG_MAX_OVERFLOW,
+            echo=settings.postgres.PG_ECHO,
+            pool_size=settings.postgres.PG_POOL_SIZE,
+            max_overflow=settings.postgres.PG_MAX_OVERFLOW,
         )
         self.session_factory = sessionmaker(bind=self.engine, expire_on_commit=False)
 

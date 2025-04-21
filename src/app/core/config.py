@@ -69,8 +69,12 @@ class RedisSettings(EnvBaseSettings):
         return self._get_redis_url(self.REDIS_CACHE)
 
 
-class Settings(PostgreSettings, RabbitMQSettings, RedisSettings, ApiSettings):
-    pass
+class Settings(BaseSettings):
+    api: ApiSettings = ApiSettings()
+    postgres: PostgreSettings = PostgreSettings()
+    redis: RedisSettings = RedisSettings()
+    rabbitmq: RabbitMQSettings = RabbitMQSettings()
 
 
 settings = Settings()
+

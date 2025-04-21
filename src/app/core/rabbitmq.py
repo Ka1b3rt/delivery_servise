@@ -5,10 +5,10 @@ from app.core.config import settings
 
 async def get_rabbitmq_connection() -> AbstractRobustConnection:
     connection = await connect_robust(
-        host=settings.RABBITMQ_HOST,
-        port=settings.RABBITMQ_PORT,
-        login=settings.RABBITMQ_USER,
-        password=settings.RABBITMQ_PASSWORD,
-        virtualhost=settings.RABBITMQ_VHOST,
+        host=settings.rabbitmq.RABBITMQ_HOST,
+        port=settings.rabbitmq.RABBITMQ_PORT,
+        login=settings.rabbitmq.RABBITMQ_USER,
+        password=settings.rabbitmq.RABBITMQ_PASSWORD,
+        virtualhost=settings.rabbitmq.RABBITMQ_VHOST,
     )
     return connection
