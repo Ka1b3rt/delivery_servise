@@ -7,18 +7,18 @@ from aio_pika.abc import AbstractRobustConnection
 
 # from app.core.config import settings
 from app.core.rabbitmq import get_rabbitmq_connection
-from app.external.exchange_rate import ExchangeRate
+from app.external.exchange_rate import get_usd_to_rub_rate
 from app.repository.crud.parcel import ParcelCRUDRepository
 
 
 async def process_message(message: Message):
     try:
-        rate: float = ExchangeRate.get_USD_to_RUB()
+        rate: float = await get_usd_to_rub_rate()
         await ParcelCRUDRepository.set_delivery_price(rate)
-        print(f"Exchange rate = {rate}")
+        # print(f"Exchange rate = {rate}")
         await message.ack()
     except Exception as e:
-        print(f"Error processing message: {e}")
+        # print(f"Error processing message: {e}")
         await message.nack(requeue=True)
 
 
