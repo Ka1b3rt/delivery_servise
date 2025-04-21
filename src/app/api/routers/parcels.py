@@ -1,5 +1,10 @@
 import logging
 
+from fastapi import HTTPException, status
+from fastapi.params import Depends
+from fastapi.routing import APIRouter
+from sqlalchemy.exc import IntegrityError
+
 from app.api.dependencies.cache import get_redis_client
 from app.api.dependencies.repository import get_repository
 from app.api.dependencies.user import get_current_user
@@ -11,24 +16,19 @@ from app.utils.cache import (
     cache_get_list_pydantic_models,
     cache_set_list_pydantic_models,
 )
-from fastapi import HTTPException, status
-from fastapi.params import Depends
-from fastapi.routing import APIRouter
-from sqlalchemy.exc import IntegrityError
-
 from redis.asyncio import Redis
 
 setup_logging(level=logging.INFO)
 router = APIRouter()
 
-
 @router.post("/parcel", response_model=AddParcelResp)
 async def add_parcel(
-    parcel: AddParcel,
-    parcel_repo: ParcelCRUDRepository = Depends(get_repository(ParcelCRUDRepository)),
-    user: User = Depends(get_current_user),
-    redis: Redis = Depends(get_redis_client),
-):
+        parcel: AddParcel,
+        parcel_repo: ParcelCRUDRepository = Depends(
+            get_repository(ParcelCRUDRepository)),
+        user: User = Depends(get_current_user),
+        redis: Redis = Depends(get_redis_client)
+        ):
     try:
         new_parcel: AddParcelResp = await parcel_repo.create_parcel(parcel, user)
         await redis.delete(str(user.session_id))
@@ -36,29 +36,27 @@ async def add_parcel(
     except IntegrityError as e:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, detail=type(e).__name__) from e
 
-
 @router.get("/parcel")
 async def get_all_parcels(
-    parcel_repo: ParcelCRUDRepository = Depends(get_repository(ParcelCRUDRepository)),
-    user: User = Depends(get_current_user),
-    redis: Redis = Depends(get_redis_client),
-):
-    parcels = await cache_get_list_pydantic_models(
-        str(user.session_id), GetParcel, redis
-    )
+        parcel_repo: ParcelCRUDRepository = Depends(
+            get_repository(ParcelCRUDRepository)),
+        user: User = Depends(get_current_user),
+        redis: Redis = Depends(get_redis_client)
+        ):
+
+    parcels = await cache_get_list_pydantic_models(str(user.session_id), GetParcel, redis)
     if parcels:
         return parcels
     logging.info(
-        f"Cache entry not found for {user.session_id=}, loading from from DB..."
-    )
+        f"Cache entry not found for {user.session_id=}, loading from from DB...")
     parcels = await parcel_repo.get_parcels_by_user(user)
     await cache_set_list_pydantic_models(user.session_id, parcels, redis)
 
     return parcels
 
-
 @router.get("/parcel_types")
 async def get_parcel_types(
-    parcel_repo: ParcelCRUDRepository = Depends(get_repository(ParcelCRUDRepository)),
-):
+        parcel_repo: ParcelCRUDRepository = Depends(
+            get_repository(ParcelCRUDRepository)
+        )):
     return await parcel_repo.get_parcel_types()

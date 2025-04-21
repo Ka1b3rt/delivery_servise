@@ -1,12 +1,14 @@
 from uuid import UUID
 
-from app.models.user import User
 from sqlalchemy import select
+
+from app.models.user import User
 
 from .base import BaseCRUDRepository
 
 
 class UserCRUDRepository(BaseCRUDRepository):
+
     async def add_user_session(self) -> User:
         """Add new user with auto-generated UUID in DB"""
         new_user = User()

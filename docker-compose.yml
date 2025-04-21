@@ -16,9 +16,9 @@ services:
     depends_on:
       db:
         condition: service_healthy
-      redis:
-        condition: service_healthy
       rabbitmq:
+        condition: service_healthy
+      redis:
         condition: service_healthy
       migrator:
         condition: service_completed_successfully
@@ -44,27 +44,6 @@ services:
       start_period: 5s
       timeout: 3s
 
-  redis:
-    image: redis:7.4-alpine
-    container_name: ${PROJECT_NAME}-redis
-    restart: always
-    ports:
-      - ${REDIS_PORT}:${REDIS_PORT}
-    volumes:
-      - redis_data:/data
-      - ./redis/redis.conf:/usr/local/etc/redis/redis.conf:ro
-    command: [
-      "redis-server",
-      "/usr/local/etc/redis/redis.conf",
-      "--requirepass", "${REDIS_PASSWORD}"
-    ]
-    healthcheck:
-      test: [ "CMD", "redis-cli", "ping" ]
-      interval: 5s
-      retries: 5
-      start_period: 5s
-      timeout: 3s
-
   rabbitmq:
     image: rabbitmq:3-management
     container_name: ${PROJECT_NAME}-rabbitmq
@@ -72,15 +51,48 @@ services:
     environment:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+      RABBITMQ_DEFAULT_VHOST: ${RABBITMQ_VHOST}
     ports:
-      - ${RABBITMQ_PORT}:${RABBITMQ_PORT}
-      - 49152:15672
+      - ${RABBITMQ_PORT}:5672
+      - ${RABBITMQ_MANAGEMENT_PORT}:15672
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
     healthcheck:
       test: ["CMD", "rabbitmq-diagnostics", "check_port_connectivity"]
-      interval: 5s
+      interval: 30s
+      timeout: 10s
       retries: 5
-      start_period: 5s
+
+  redis:
+    image: redis:7-alpine
+    container_name: ${PROJECT_NAME}-redis
+    restart: always
+    ports:
+      - ${REDIS_PORT}:6379
+    volumes:
+      - redis_data:/data
+    command: redis-server --requirepass ${REDIS_PASSWORD}
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
       timeout: 3s
+      retries: 5
+
+  worker:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    container_name: ${PROJECT_NAME}-worker
+    restart: always
+    env_file:
+      - .env
+    depends_on:
+      api:
+        condition: service_started
+      rabbitmq:
+        condition: service_healthy
+    command: >
+      uv run python -m app.core.worker
 
   migrator:
     build:
@@ -98,4 +110,5 @@ services:
 
 volumes:
   pg_data:
+  rabbitmq_data:
   redis_data:

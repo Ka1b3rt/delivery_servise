@@ -1,6 +1,7 @@
+from sqlalchemy import delete, select, text
+
 from app.core.database import sync_db
 from app.models.parcel import ParcelType, TypeType
-from sqlalchemy import delete, select, text
 
 
 def check_is_seeded() -> bool:
@@ -27,11 +28,12 @@ def seed_parcel_types():
         with sync_db.session_factory() as session:
             query = delete(ParcelType)
             session.execute(query)
-            session.execute(text("ALTER SEQUENCE parcel_type_id_seq RESTART WITH 1"))
+            session.execute(text(
+                "ALTER SEQUENCE parcel_type_id_seq RESTART WITH 1"
+            ))
             for type in TypeType:
                 session.add(ParcelType(type=type))
             session.commit()
         print("Seeding done!")
-
 
 seed_parcel_types()

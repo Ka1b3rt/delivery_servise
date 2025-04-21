@@ -1,14 +1,19 @@
-from app.core.database import async_db
-from app.repository.crud.user import UserCRUDRepository
+
 from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
 from starlette.requests import Request
 from starlette.responses import Response
 
+from app.core.database import async_db
+from app.repository.crud.user import UserCRUDRepository
+
 
 class UserSessionMiddleware(BaseHTTPMiddleware):
     async def dispatch(
-        self, request: Request, call_next: RequestResponseEndpoint
+            self,
+            request: Request,
+            call_next: RequestResponseEndpoint
     ) -> Response:
+
         session_id: str = request.cookies.get("session_id")
 
         async with async_db.session_factory() as db_session:
@@ -23,6 +28,6 @@ class UserSessionMiddleware(BaseHTTPMiddleware):
             key="session_id",
             value=str(user.session_id),
             httponly=True,
-            max_age=86_400,  # время жизни 1 день
+            max_age=86_400 # время жизни 1 день
         )
         return response

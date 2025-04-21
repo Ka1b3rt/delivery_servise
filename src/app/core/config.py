@@ -4,16 +4,14 @@ from pydantic_settings import BaseSettings
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent.parent
 
-
 class EnvBaseSettings(BaseSettings):
+
     class Config:
         env_file = BASE_DIR / ".env"
-
 
 class ApiSettings(EnvBaseSettings):
     PROJECT_NAME: str
     API_PORT: int
-
 
 class PostgreSettings(EnvBaseSettings):
     PG_HOST: str
@@ -33,6 +31,13 @@ class PostgreSettings(EnvBaseSettings):
     def DATABASE_SYNC_URL(self):
         return f"postgresql+psycopg2://{self.PG_USER}:{self.PG_PASSWORD}@{self.PG_HOST}:{self.PG_PORT}/{self.PG_DB}"
 
+class RabbitMQSettings(EnvBaseSettings):
+    RABBITMQ_HOST: str
+    RABBITMQ_PORT: int
+    RABBITMQ_MANAGEMENT_PORT: int
+    RABBITMQ_USER: str
+    RABBITMQ_PASSWORD: str
+    RABBITMQ_VHOST: str
 
 class RedisSettings(EnvBaseSettings):
     REDIS_HOST: str
@@ -59,20 +64,7 @@ class RedisSettings(EnvBaseSettings):
     def REDIS_URL_CACHE(self):
         return self._get_redis_url(self.REDIS_CACHE)
 
-
-class RabbitMQSettings(EnvBaseSettings):
-    RABBITMQ_HOST: str
-    RABBITMQ_PORT: int
-    RABBITMQ_USER: str
-    RABBITMQ_PASSWORD: str
-
-    @property
-    def RABBITMQ_URL(self):
-        return f"amqp://{self.RABBITMQ_USER}:{self.RABBITMQ_PASSWORD}@{self.RABBITMQ_HOST}:{self.RABBITMQ_PORT}/"
-
-
-class Settings(PostgreSettings, RedisSettings, RabbitMQSettings, ApiSettings):
+class Settings(PostgreSettings, RabbitMQSettings, RedisSettings, ApiSettings):
     pass
-
 
 settings = Settings()

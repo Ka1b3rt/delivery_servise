@@ -6,7 +6,6 @@ from sqlalchemy.dialects.postgresql import UUID as SQLAlchemyPG_UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import SQLAlchemyBaseModel
-from .parcel import Parcel
 
 
 class User(SQLAlchemyBaseModel):
@@ -31,5 +30,7 @@ class User(SQLAlchemyBaseModel):
     )
 
     parcels: Mapped[list["Parcel"]] = relationship(
-        back_populates="user", cascade="all, delete", passive_deletes=True
+        back_populates="user",
+        cascade="all, delete",
+        passive_deletes=True
     )

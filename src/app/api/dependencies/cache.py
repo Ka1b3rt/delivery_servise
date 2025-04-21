@@ -1,5 +1,4 @@
 from app.core.config import settings
-
 from redis.asyncio import Redis
 
 
@@ -10,6 +9,6 @@ def get_redis_client() -> Redis:
         username=settings.REDIS_USER,
         password=settings.REDIS_PASSWORD,
         db=settings.REDIS_CACHE,
-        decode_responses=True,
+        decode_responses=True
     )
     return client
