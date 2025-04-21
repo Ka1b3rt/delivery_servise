@@ -1,57 +1,51 @@
-# Delivery Service
+# SUPERB Delivery
 
-API сервис для управления доставкой.
+## Delivery service web API
+**For academic purpose only**
 
-## Установка
+Supporting features:
+- Add\Get parcel
+- Parcels bind to user session
+- Automatic delivery-cost calc depends on actual exchange rate USD/RUB
 
-1. Установите Poetry:
-```bash
-curl -sSL https://install.python-poetry.org | python3 -
+**Installation**
+1. Clone repo
+```commandline
+git clone https://github.com/Simonstools/delivery_service.git \
+&& cd delivery_service \
+&& git checkout dev
+```
+2. Setup .env file relying on .envexample, but it does not require. App will be launched properly with current settings in .envexample file, if changes will not be perfomed then just rename .envexample to .env.
+```commandline
+mv .env.example .env
+```
+3. Build and run application
+```commandline
+docker-compose up --build -d
 ```
 
-2. Установите зависимости:
-```bash
-poetry install
+**API endpoints**
+
+GET
+```
+/parcel
+/parcel_types
+/update_rate
 ```
 
-3. Установите pre-commit хуки:
-```bash
-poetry run pre-commit install
+POST
+```
+/parcel
 ```
 
-## Запуск
+**Testing**
 
-### Локально
-
-```bash
-poetry run uvicorn delivery_service.main:app --reload
+Prepare .venv
+```commandline
+uv sync --frozen \
+&& source .venv/bin/activate
 ```
-
-### С использованием Docker
-
-```bash
-docker-compose up --build
-```
-
-## Тестирование
-
-```bash
-poetry run pytest
-```
-
-## Структура проекта
-
-```
-delivery_service/
-├── src/
-│   └── delivery_service/
-│       ├── api/         # API эндпоинты
-│       ├── core/        # Основная логика
-│       ├── db/          # Работа с базой данных
-│       ├── models/      # Модели данных
-│       └── schemas/     # Pydantic схемы
-├── tests/              # Тесты
-├── Dockerfile
-├── docker-compose.yml
-└── pyproject.toml
+Run tests
+```commandline
+pytest
 ```

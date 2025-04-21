@@ -1,27 +1,101 @@
-version: '3.8'
-
 services:
-  app:
-    build: .
+  api:
+    image: delivery-api
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    container_name: ${PROJECT_NAME}-api
+    restart: always
     ports:
-      - "8000:8000"
+      - ${API_PORT}:${API_PORT}
+    env_file:
+      - .env
     volumes:
-      - .:/app
-    environment:
-      - DATABASE_URL=postgresql://postgres:postgres@db:5432/delivery_service
+      - ./src:/app/src
+      - ./pyproject.toml:/app/pyproject.toml
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      migrator:
+        condition: service_completed_successfully
+    command: >
+      bash -c "uv run uvicorn --host 0.0.0.0 --port 3000 app.asgi:app --reload"
 
   db:
-    image: postgres:15
+    image: postgres:17
+    container_name: ${PROJECT_NAME}-postgres
+    restart: always
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=delivery_service
-    ports:
-      - "5432:5432"
+      POSTGRES_USER: ${PG_USER}
+      POSTGRES_PASSWORD: ${PG_PASSWORD}
+      POSTGRES_DB: ${PG_DB}
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - pg_data:/var/lib/postgresql/data
+    ports:
+      - ${PG_PORT}:${PG_PORT}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      retries: 5
+      start_period: 5s
+      timeout: 3s
+
+  redis:
+    image: redis:7.4-alpine
+    container_name: ${PROJECT_NAME}-redis
+    restart: always
+    ports:
+      - ${REDIS_PORT}:${REDIS_PORT}
+    volumes:
+      - redis_data:/data
+      - ./redis/redis.conf:/usr/local/etc/redis/redis.conf:ro
+    command: [
+      "redis-server",
+      "/usr/local/etc/redis/redis.conf",
+      "--requirepass", "${REDIS_PASSWORD}"
+    ]
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 5s
+      retries: 5
+      start_period: 5s
+      timeout: 3s
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: ${PROJECT_NAME}-rabbitmq
+    restart: always
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+    ports:
+      - ${RABBITMQ_PORT}:${RABBITMQ_PORT}
+      - 49152:15672
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "check_port_connectivity"]
+      interval: 5s
+      retries: 5
+      start_period: 5s
+      timeout: 3s
+
+  migrator:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    container_name: ${PROJECT_NAME}-migrator
+    restart: on-failure
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+    command: >
+      bash -c "cd /app && uv run alembic upgrade head && cd src && uv run initial_seed.py"
 
 volumes:
-  postgres_data: 
+  pg_data:
+  redis_data:
