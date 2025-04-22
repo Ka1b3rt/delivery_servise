@@ -1,19 +1,32 @@
-FROM python:3.11-slim
+FROM python:3.12-slim
+
+ARG ENVIRONMENT="production"
+
+RUN apt-get update \
+    && apt-get install --no-install-recommends -y \
+    python3-dev \
+    libpq-dev \
+    build-essential \
+    curl \
+    git \
+    && apt-get autoremove -y && apt-get clean -y && rm -rf /var/lib/apt/lists/*
+
+
+RUN pip install uv
 
 WORKDIR /app
 
-# Установка Poetry
-RUN pip install poetry
+COPY ./src/ /app/src
+COPY ./alembic/ /app/alembic
+COPY pyproject.toml uv.lock alembic.ini /app/
 
-# Копируем файлы проекта
-COPY pyproject.toml poetry.lock ./
+RUN echo $ENVIRONMENT \
+    && uv --version \
+    && uv sync --frozen
 
-# Устанавливаем зависимости
-RUN poetry config virtualenvs.create false \
-    && poetry install --no-interaction --no-ansi
+RUN groupadd -r web && useradd -d /app -r -g web web \
+    && chown web:web -R /app
 
-# Копируем исходный код
-COPY . .
+USER web
 
-# Запускаем приложение
-CMD ["poetry", "run", "uvicorn", "delivery_service.main:app", "--host", "0.0.0.0", "--port", "8000"] 
+WORKDIR /app/src
