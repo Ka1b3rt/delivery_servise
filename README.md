@@ -1,51 +1,84 @@
-# SUPERB Delivery
+# Delivery Service
 
-## Delivery service web API
-**For academic purpose only**
+Сервис доставки посылок с использованием FastAPI, PostgreSQL, Redis и RabbitMQ.
 
-Supporting features:
-- Add\Get parcel
-- Parcels bind to user session
-- Automatic delivery-cost calc depends on actual exchange rate USD/RUB
+## Структура проекта
 
-**Installation**
-1. Clone repo
-```commandline
-git clone https://github.com/Simonstools/delivery_service.git \
-&& cd delivery_service \
-&& git checkout dev
 ```
-2. Setup .env file relying on .envexample, but it does not require. App will be launched properly with current settings in .envexample file, if changes will not be perfomed then just rename .envexample to .env.
-```commandline
-mv .env.example .env
-```
-3. Build and run application
-```commandline
-docker-compose up --build -d
+delivery_service/
+├── alembic/                  # Миграции базы данных
+├── redis/                    # Конфигурация Redis
+├── src/                      # Исходный код
+│   ├── app/                  # Основное приложение
+│   │   ├── api/              # API эндпоинты
+│   │   ├── core/             # Ядро приложения
+│   │   │   ├── config/       # Конфигурация
+│   │   │   ├── database.py   # Настройки БД
+│   │   │   ├── paths.py      # Пути проекта
+│   │   │   └── worker.py     # Воркер для фоновых задач
+│   │   ├── external/         # Внешние сервисы
+│   │   ├── models/           # SQLAlchemy модели
+│   │   ├── repository/       # Репозитории для работы с БД
+│   │   ├── schemas/          # Pydantic схемы
+│   │   ├── services/         # Бизнес-логика
+│   │   ├── utils/            # Вспомогательные функции
+│   │   ├── asgi.py           # ASGI приложение
+│   │   └── main.py           # Точка входа
+│   └── initial_seed.py       # Скрипт инициализации данных
+├── tests/                    # Тесты
+├── .env                      # Переменные окружения
+├── .env.example              # Пример .env файла
+├── .pre-commit-config.yaml   # Настройки pre-commit
+├── .python-version           # Версия Python
+├── Dockerfile                # Docker конфигурация
+├── alembic.ini               # Конфигурация Alembic
+├── docker-compose.yml        # Docker Compose конфигурация
+├── pyproject.toml            # Зависимости проекта
+└── README.md                 # Документация
 ```
 
-**API endpoints**
+## Основные компоненты
 
-GET
-```
-/parcel
-/parcel_types
-/update_rate
+### Модели данных
+- `Parcel` - модель посылки
+- `ParcelType` - типы посылок
+- `User` - модель пользователя
+
+### API
+- CRUD операции для посылок
+- Управление типами посылок
+- Расчет стоимости доставки
+
+### Сервисы
+- Расчет стоимости доставки
+- Обновление курса валют
+- Обработка фоновых задач
+
+### Инфраструктура
+- PostgreSQL для хранения данных
+- Redis для кэширования и очередей
+- RabbitMQ для асинхронных задач
+
+## Запуск проекта
+
+1. Скопируйте `.env.example` в `.env` и настройте переменные окружения
+2. Запустите сервисы:
+```bash
+docker-compose up -d
 ```
 
-POST
-```
-/parcel
+## Миграции базы данных
+
+```bash
+docker-compose run --rm migrator
 ```
 
-**Testing**
+## Тесты
 
-Prepare .venv
-```commandline
-uv sync --frozen \
-&& source .venv/bin/activate
+```bash
+docker-compose run --rm api pytest
 ```
-Run tests
-```commandline
-pytest
-```
+
+## Лицензия
+
+MIT

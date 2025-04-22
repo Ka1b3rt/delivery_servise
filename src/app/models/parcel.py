@@ -23,6 +23,7 @@ class TypeType(str, enum.Enum):
     OTHER = "other"
 
 
+
 class Parcel(SQLAlchemyBaseModel):
     __tablename__ = "parcel"
     __table_args__ = (
