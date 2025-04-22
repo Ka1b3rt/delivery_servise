@@ -21,8 +21,9 @@ def check_is_seeded() -> bool:
 
 def seed_parcel_types():
     if check_is_seeded():
-        return
+        print("DB seeded properly!")
     else:
+        print("Start initial_seed...")
         with sync_db.session_factory() as session:
             query = delete(ParcelType)
             session.execute(query)
@@ -30,7 +31,7 @@ def seed_parcel_types():
             for type in TypeType:
                 session.add(ParcelType(type=type))
             session.commit()
-
+        print("Seeding done!")
 
 
 seed_parcel_types()

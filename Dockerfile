@@ -9,6 +9,7 @@ RUN apt-get update \
     build-essential \
     curl \
     git \
+    # Clean cache
     && apt-get autoremove -y && apt-get clean -y && rm -rf /var/lib/apt/lists/*
 
 

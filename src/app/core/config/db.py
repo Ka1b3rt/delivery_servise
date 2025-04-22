@@ -3,6 +3,8 @@ from app.core.mixin import BaseUrlBuilderMixin
 
 
 class PostgresConfig(BaseConfig, BaseUrlBuilderMixin):
+    """Конфигурация для PostgreSQL."""
+    
     PG_HOST: str
     PG_PORT: int
     PG_USER: str
@@ -14,6 +16,7 @@ class PostgresConfig(BaseConfig, BaseUrlBuilderMixin):
     
     @property
     def DATABASE_ASYNC_URL(self) -> str:
+        """Возвращает URL для асинхронного подключения к БД."""
         return self.build_url(
             scheme="postgresql+asyncpg",
             user=self.PG_USER,
@@ -25,6 +28,7 @@ class PostgresConfig(BaseConfig, BaseUrlBuilderMixin):
     
     @property
     def DATABASE_SYNC_URL(self) -> str:
+        """Возвращает URL для синхронного подключения к БД."""
         return self.build_url(
             scheme="postgresql+psycopg2",
             user=self.PG_USER,

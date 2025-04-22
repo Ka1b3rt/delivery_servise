@@ -23,6 +23,6 @@ class UserSessionMiddleware(BaseHTTPMiddleware):
             key="session_id",
             value=str(user.session_id),
             httponly=True,
-            max_age=86_400, 
+            max_age=86_400,  # время жизни 1 день
         )
         return response

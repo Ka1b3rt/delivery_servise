@@ -2,6 +2,8 @@ from app.core.config.base import BaseConfig
 
 
 class ApiConfig(BaseConfig):
+    """Конфигурация для API."""
+    
     PROJECT_NAME: str
     API_PORT: int
     DEBUG: bool = False
@@ -10,4 +12,5 @@ class ApiConfig(BaseConfig):
     
     @property
     def API_V1_STR(self) -> str:
+        """Возвращает префикс API v1."""
         return f"{self.API_PREFIX}/{self.API_VERSION}" 
